@@ -4,8 +4,12 @@ import logging
 import os
 import socket
 import threading
+from binascii import hexlify
 
 import paramiko
+
+
+logger = logging.getLogger(__name__)
 
 
 class SFTPServer(object):
@@ -63,15 +67,24 @@ class SSHInterface(paramiko.ServerInterface):
 
     def __init__(self, get_user):
         self.get_user = get_user
+        self.user = None
+
+    def get_allowed_auths(self, username):
+        return 'publickey'
+
+    def check_auth_publickey(self, username, key):
+        logger.info('Username: %s', username)
+        logger.info('Password: %s', hexlify(key.get_fingerprint()))
+        return self.check_auth_password(username, hexlify(key.get_fingerprint()))
 
     def check_auth_password(self, username, password):
         user = self.get_user(username, password)
         if user:
-            logging.info((u'Auth successful for %s' % username).encode('utf-8'))
+            logger.info((u'Auth successful for %s' % username).encode('utf-8'))
             self.user = user
             return paramiko.AUTH_SUCCESSFUL
         else:
-            logging.info((u'Auth failed for %s' % username).encode('utf-8'))
+            logger.info((u'Auth failed for %s' % username).encode('utf-8'))
             return paramiko.AUTH_FAILED
 
     def check_channel_request(self, kind, chanid):
@@ -116,10 +129,10 @@ def log_event(method):
         try:
             response = method(self, *args, **kwargs)
         except Exception:
-            logging.info((msg % 'error').encode('utf-8'))
+            logger.info((msg % 'error').encode('utf-8'))
             raise
         else:
-            logging.info((msg % 'ok').encode('utf-8'))
+            logger.info((msg % 'ok').encode('utf-8'))
         return response
     return wrapper
 

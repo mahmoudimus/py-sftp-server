@@ -1,4 +1,8 @@
+import logging
+
 from ConfigParser import RawConfigParser
+
+logger = logging.getLogger(__name__)
 
 
 def read_permissions_file(filename):
@@ -19,4 +23,5 @@ def read_permissions_file(filename):
         path = path.strip().strip('/')
         groups = set([group.strip() for group in group_string.split(',')])
         permissions[path] = groups
+    logger.debug('permissions are: %s', permissions)
     return permissions

@@ -11,8 +11,7 @@ from sftp_server.permissions_file import read_permissions_file
 SSH_PORT = 2222
 
 development_root = os.path.join(os.path.dirname(__file__), 'tmp')
-FILE_ROOT = os.path.realpath(os.environ.get(
-        'FILESERVER_ROOT', development_root))
+FILE_ROOT = os.path.realpath(os.environ.get('FILESERVER_ROOT', development_root))
 # Note, you can generate a new host key like this:
 # ssh-keygen -t rsa -N '' -f host_key
 HOST_KEY = os.path.join(os.path.dirname(__file__), 'config/host_key')

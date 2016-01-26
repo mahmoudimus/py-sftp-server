@@ -1,3 +1,9 @@
+import logging
+
+
+logger = logging.getLogger(__name__)
+
+
 class PermissionsManager(object):
     """
     Manages permissions on a directory tree.
@@ -47,13 +53,21 @@ class PermissionsManager(object):
     def has_write_access(self, groups, path):
         # Check every element of the path, if the user belongs to a group which
         # has write access to this element then allow the request
+        logger.debug("checking if user's groups: %s have permission for %s",
+                     groups, path)
         for parent in self.get_path_parents(path):
+            logger.debug('checking parent path: %s', parent)
             try:
                 allowed_groups = self.permissions[parent]
             except KeyError:
-                continue
+                logger.debug('no permissions found for parent path: %s', parent)
+            else:
+                logger.debug('groups for parent path(%s): %s', parent,
+                             allowed_groups)
+
             if not groups.isdisjoint(allowed_groups):
                 return True
+        logger.debug('exhausted search, no permissions found 4 path: %s', path)
         return False
 
     @staticmethod
